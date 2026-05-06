@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WLED Album Art</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="header">
+    <div class="header-logo">🎵</div>
+    <h1>WLED <span>Album Art</span></h1>
+  </div>
+
+  <div class="grid">
+
+    <!-- Now Playing -->
+    <div class="card" id="card-now-playing">
+      <div class="card-title">Now Playing</div>
+      <div class="now-playing" id="now-playing-content">
+        <div class="album-art-placeholder" id="album-art-placeholder">♪</div>
+        <img class="album-art" id="album-art" src="" alt="" style="display:none" />
+        <div class="track-info">
+          <div class="track-name" id="track-name">—</div>
+          <div class="track-artist" id="track-artist">—</div>
+          <div class="track-album" id="track-album"></div>
+          <div class="track-meta">
+            <span class="badge badge-disconnected" id="spotify-badge">Disconnected</span>
+            <span class="badge badge-disconnected" id="wled-badge">WLED Idle</span>
+          </div>
+          <div class="push-status" id="push-status"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Matrix Preview -->
+    <div class="card">
+      <div class="card-title">Matrix Preview</div>
+      <div class="preview-toggle">
+        <button class="toggle-btn active" id="btn-smooth" onclick="setPreviewMode('smooth')">Smooth</button>
+        <button class="toggle-btn" id="btn-pixel" onclick="setPreviewMode('pixel')">Pixel</button>
+      </div>
+      <canvas id="preview-canvas"></canvas>
+    </div>
+
+    <!-- Settings -->
+    <div class="card">
+      <div class="card-title">Settings</div>
+
+      <div class="form-row">
+        <div>
+          <label>Matrix Width</label>
+          <input type="number" id="matrix-width" min="8" max="64" value="16" />
+        </div>
+        <div>
+          <label>Matrix Height</label>
+          <input type="number" id="matrix-height" min="8" max="64" value="16" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>WLED IP Address</label>
+        <input type="text" id="wled-ip" placeholder="192.168.1.100" />
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label>WLED Port</label>
+          <input type="number" id="wled-port" min="1" max="65535" value="4048" />
+        </div>
+        <div>
+          <label>Brightness</label>
+          <div class="range-row">
+            <input type="range" id="wled-brightness" min="0" max="255" value="128"
+              oninput="document.getElementById('brightness-val').textContent=this.value" />
+            <span class="range-val" id="brightness-val">128</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Polling Interval</label>
+        <div class="range-row">
+          <input type="range" id="polling-interval" min="1000" max="30000" step="500" value="4000"
+            oninput="document.getElementById('polling-val').textContent=(this.value/1000).toFixed(1)+'s'" />
+          <span class="range-val" id="polling-val">4.0s</span>
+        </div>
+      </div>
+
+      <div class="switch-row">
+        <span class="switch-label">Dithering</span>
+        <label class="switch">
+          <input type="checkbox" id="dithering-toggle" checked onchange="toggleDitheringSection()" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="form-group conditional" id="dither-algorithm-section">
+        <label>Dither Algorithm</label>
+        <select id="dither-algorithm">
+          <option value="floyd-steinberg">Floyd-Steinberg</option>
+          <option value="nearest-neighbor">Nearest Neighbor</option>
+        </select>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+        <button class="btn btn-secondary btn-sm" onclick="testPush()">Test Push</button>
+      </div>
+      <div class="feedback" id="settings-feedback"></div>
+    </div>
+
+    <!-- Credentials -->
+    <div class="card">
+      <div class="card-title">Credentials</div>
+
+      <div class="form-group">
+        <label>Spotify Client ID</label>
+        <input type="text" id="cred-client-id" placeholder="your_client_id" />
+      </div>
+
+      <div class="form-group">
+        <label>Spotify Client Secret</label>
+        <div class="secret-wrap">
+          <input type="password" id="cred-client-secret" placeholder="your_client_secret" />
+          <button class="secret-toggle" onclick="toggleSecret('cred-client-secret', this)" title="Show/hide">👁</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Redirect URI</label>
+        <input type="text" id="cred-redirect-uri" placeholder="http://localhost:3000/auth/callback" />
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary btn-sm" onclick="saveCredentials()">Save Credentials</button>
+      </div>
+      <div class="feedback" id="cred-feedback"></div>
+
+      <hr class="divider" />
+
+      <div class="switch-row" style="margin-bottom:0">
+        <div>
+          <div style="font-size:13px;font-weight:600">Spotify Account</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px" id="auth-detail">Not connected</div>
+        </div>
+        <span class="badge badge-disconnected" id="auth-status-badge">Disconnected</span>
+      </div>
+
+      <div class="btn-row" style="margin-top:14px">
+        <a class="btn btn-primary" href="/auth/login" id="btn-connect">Connect Spotify</a>
+        <button class="btn btn-danger btn-sm" id="btn-disconnect" onclick="disconnectSpotify()" style="display:none">Disconnect</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/js/settings.js"></script>
+  <script src="/js/preview.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
