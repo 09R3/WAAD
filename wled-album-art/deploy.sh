@@ -1,19 +1,19 @@
 #!/bin/bash
 # ─────────────────────────────────────────────────────────────────────────────
 #  WLED Album Art Display — Unraid Deploy Script
-#  Save this file to: /mnt/user/appdata/wled-album-art/deploy.sh
-#  Run with:  bash /mnt/user/appdata/wled-album-art/deploy.sh
+#  Save this file to: /mnt/user/appdata/waad/deploy.sh
+#  Run with:  bash /mnt/user/appdata/waad/deploy.sh
 # ─────────────────────────────────────────────────────────────────────────────
 
 set -e
 
 # ── Config (edit these) ───────────────────────────────────────────────────────
-APPDATA_DIR="/mnt/user/appdata/wled-album-art"
+APPDATA_DIR="/mnt/user/appdata/waad"
 REPO_URL="https://github.com/09R3/WAAD"
 BRANCH="main"
 SUBDIR="wled-album-art"        # subfolder inside repo
-CONTAINER_NAME="wled-album-art"
-IMAGE_NAME="wled-album-art"
+CONTAINER_NAME="WAAD"
+IMAGE_NAME="WAAD"
 HOST_PORT=3080                 # port exposed on Unraid
 CONTAINER_PORT=3000            # port inside container
 # ─────────────────────────────────────────────────────────────────────────────
