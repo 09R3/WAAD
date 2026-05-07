@@ -3,33 +3,22 @@
 let sseSource = null;
 
 function updateNowPlaying(track) {
-  const albumArt = document.getElementById('album-art');
-  const placeholder = document.getElementById('album-art-placeholder');
-  const trackName = document.getElementById('track-name');
-  const trackArtist = document.getElementById('track-artist');
-  const trackAlbum = document.getElementById('track-album');
+  const embedWrap = document.getElementById('spotify-embed-wrap');
+  const embed = document.getElementById('spotify-embed');
+  const idle = document.getElementById('now-playing-idle');
 
-  if (!track) {
-    albumArt.style.display = 'none';
-    placeholder.style.display = 'flex';
-    trackName.textContent = 'Nothing playing';
-    trackArtist.textContent = '—';
-    trackAlbum.textContent = '';
+  if (!track || !track.id) {
+    embedWrap.style.display = 'none';
+    idle.style.display = 'flex';
     return;
   }
 
-  trackName.textContent = track.name || '—';
-  trackArtist.textContent = track.artist || '—';
-  trackAlbum.textContent = track.album || '';
-
-  if (track.albumArtUrl) {
-    albumArt.src = track.albumArtUrl;
-    albumArt.style.display = 'block';
-    placeholder.style.display = 'none';
-  } else {
-    albumArt.style.display = 'none';
-    placeholder.style.display = 'flex';
+  const embedUrl = `https://open.spotify.com/embed/track/${track.id}?utm_source=generator&theme=0`;
+  if (embed.src !== embedUrl) {
+    embed.src = embedUrl;
   }
+  embedWrap.style.display = 'block';
+  idle.style.display = 'none';
 }
 
 function updateAuthBadge(auth) {
