@@ -8,6 +8,9 @@ const { processImage } = require('./image/processor');
 const { pushPixels } = require('./wled/ddp');
 const { router: apiRouter, broadcast, setLastPixels } = require('./routes/api');
 const authRouter = require('./routes/auth');
+const statsRouter = require('./routes/stats');
+const { runMigrations, isConfigured } = require('./db/client');
+const { insertPlay } = require('./db/plays');
 
 const app = express();
 app.use(express.json());
@@ -15,8 +18,9 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/auth', authRouter);
 app.use('/api', apiRouter);
+app.use('/api', statsRouter);
 
-// Track change pipeline: fetch art → process → push to WLED → broadcast SSE
+// Track change pipeline: fetch art → process → push to WLED → record play → broadcast SSE
 setTrackChangeHandler(async (track) => {
   if (!track || !track.albumArtUrl) {
     broadcast('trackChange', { track: null, pixels: [] });
@@ -60,6 +64,22 @@ setTrackChangeHandler(async (track) => {
     console.error('[ddp] Push failed:', err.message);
   }
 
+  // Record play to DB (non-blocking, optional)
+  if (isConfigured()) {
+    insertPlay({
+      track_id: track.id,
+      track_name: track.name,
+      artist_id: track.artistId || null,
+      artist_name: track.artist,
+      album_id: track.albumId || null,
+      album_name: track.album || null,
+      album_art_url: track.albumArtUrl || null,
+      duration_ms: track.durationMs || null,
+      spotify_uri: track.spotifyUri || null,
+      source: 'live',
+    }).catch((err) => console.error('[db] insertPlay failed:', err.message));
+  }
+
   broadcast('trackChange', {
     track,
     pushedAt: Date.now(),
@@ -71,8 +91,11 @@ pollerEvents.on('error', (e) => {
 });
 
 const PORT = process.env.SERVER_PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`[server] Listening on http://localhost:${PORT}`);
+  if (isConfigured()) {
+    await runMigrations();
+  }
   startPoller();
   console.log('[poller] Started');
 });

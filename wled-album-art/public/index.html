@@ -5,123 +5,224 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>W.A.A.D</title>
   <link rel="stylesheet" href="/css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
 <body>
   <div class="header">
     <div class="header-logo">🎵</div>
     <h1>W.<span>A.A.D</span></h1>
+    <nav class="main-nav">
+      <button class="nav-btn active" id="nav-dashboard" onclick="showPage('dashboard')">Dashboard</button>
+      <button class="nav-btn" id="nav-stats" onclick="showPage('stats')">Stats</button>
+    </nav>
     <button class="gear-btn" onclick="openCredentialsModal()" title="Credentials">&#9881;</button>
   </div>
 
-  <div class="grid">
+  <!-- ── Dashboard page ─────────────────────────────────────────────────── -->
+  <div class="page" id="page-dashboard">
+    <div class="grid">
 
-    <!-- Now Playing -->
-    <div class="card" id="card-now-playing">
-      <div class="card-title">Now Playing</div>
-
-      <div class="spotify-embed-wrap" id="spotify-embed-wrap" style="display:none">
-        <iframe id="spotify-embed"
-          src=""
-          width="100%"
-          height="152"
-          frameborder="0"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy">
-        </iframe>
-      </div>
-
-      <div class="now-playing-idle" id="now-playing-idle">
-        <div class="album-art-placeholder">♪</div>
-        <span>Nothing playing</span>
-      </div>
-
-      <div class="track-meta" style="margin-top:12px">
-        <span class="badge badge-disconnected" id="spotify-badge">Disconnected</span>
-        <span class="badge badge-disconnected" id="wled-badge">WLED Idle</span>
-      </div>
-      <div class="push-status" id="push-status"></div>
-    </div>
-
-    <!-- Matrix Preview -->
-    <div class="card">
-      <div class="card-title">Matrix Preview</div>
-      <div class="preview-header">
-        <div class="preview-toggle">
-          <button class="toggle-btn active" id="btn-smooth" onclick="setPreviewMode('smooth')">Smooth</button>
-          <button class="toggle-btn" id="btn-pixel" onclick="setPreviewMode('pixel')">Pixel</button>
+      <!-- Now Playing -->
+      <div class="card" id="card-now-playing">
+        <div class="card-title">Now Playing</div>
+        <div class="spotify-embed-wrap" id="spotify-embed-wrap" style="display:none">
+          <iframe id="spotify-embed" src="" width="100%" height="152" frameborder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"></iframe>
         </div>
-        <button class="btn btn-secondary btn-sm" onclick="refreshPreview()" id="btn-refresh-preview">&#8635; Refresh</button>
-      </div>
-      <canvas id="preview-canvas"></canvas>
-    </div>
-
-    <!-- Settings -->
-    <div class="card">
-      <div class="card-title">Settings</div>
-
-      <div class="form-row">
-        <div>
-          <label>Matrix Width</label>
-          <input type="number" id="matrix-width" min="8" max="64" value="16" />
+        <div class="now-playing-idle" id="now-playing-idle">
+          <div class="album-art-placeholder">♪</div>
+          <span>Nothing playing</span>
         </div>
-        <div>
-          <label>Matrix Height</label>
-          <input type="number" id="matrix-height" min="8" max="64" value="16" />
+        <div class="track-meta" style="margin-top:12px">
+          <span class="badge badge-disconnected" id="spotify-badge">Disconnected</span>
+          <span class="badge badge-disconnected" id="wled-badge">WLED Idle</span>
         </div>
+        <div class="push-status" id="push-status"></div>
       </div>
 
-      <div class="form-group">
-        <label>WLED IP Address</label>
-        <input type="text" id="wled-ip" placeholder="192.168.1.100" />
+      <!-- Matrix Preview -->
+      <div class="card">
+        <div class="card-title">Matrix Preview</div>
+        <div class="preview-header">
+          <div class="preview-toggle">
+            <button class="toggle-btn active" id="btn-smooth" onclick="setPreviewMode('smooth')">Smooth</button>
+            <button class="toggle-btn" id="btn-pixel" onclick="setPreviewMode('pixel')">Pixel</button>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="refreshPreview()" id="btn-refresh-preview">&#8635; Refresh</button>
+        </div>
+        <canvas id="preview-canvas"></canvas>
       </div>
 
-      <div class="form-row">
-        <div>
-          <label>WLED Port</label>
-          <input type="number" id="wled-port" min="1" max="65535" value="4048" />
+      <!-- Settings -->
+      <div class="card">
+        <div class="card-title">Settings</div>
+        <div class="form-row">
+          <div>
+            <label>Matrix Width</label>
+            <input type="number" id="matrix-width" min="8" max="64" value="16" />
+          </div>
+          <div>
+            <label>Matrix Height</label>
+            <input type="number" id="matrix-height" min="8" max="64" value="16" />
+          </div>
         </div>
-        <div>
-          <label>Brightness</label>
+        <div class="form-group">
+          <label>WLED IP Address</label>
+          <input type="text" id="wled-ip" placeholder="192.168.1.100" />
+        </div>
+        <div class="form-row">
+          <div>
+            <label>WLED Port</label>
+            <input type="number" id="wled-port" min="1" max="65535" value="4048" />
+          </div>
+          <div>
+            <label>Brightness</label>
+            <div class="range-row">
+              <input type="range" id="wled-brightness" min="0" max="255" value="128"
+                oninput="document.getElementById('brightness-val').textContent=this.value" />
+              <span class="range-val" id="brightness-val">128</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Polling Interval</label>
           <div class="range-row">
-            <input type="range" id="wled-brightness" min="0" max="255" value="128"
-              oninput="document.getElementById('brightness-val').textContent=this.value" />
-            <span class="range-val" id="brightness-val">128</span>
+            <input type="range" id="polling-interval" min="1000" max="30000" step="500" value="4000"
+              oninput="document.getElementById('polling-val').textContent=(this.value/1000).toFixed(1)+'s'" />
+            <span class="range-val" id="polling-val">4.0s</span>
+          </div>
+        </div>
+        <div class="switch-row">
+          <span class="switch-label">Dithering</span>
+          <label class="switch">
+            <input type="checkbox" id="dithering-toggle" checked onchange="toggleDitheringSection()" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="form-group conditional" id="dither-algorithm-section">
+          <label>Dither Algorithm</label>
+          <select id="dither-algorithm">
+            <option value="floyd-steinberg">Floyd-Steinberg</option>
+            <option value="nearest-neighbor">Nearest Neighbor</option>
+          </select>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+          <button class="btn btn-secondary btn-sm" onclick="testPush()">Test Push</button>
+        </div>
+        <div class="feedback" id="settings-feedback"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Stats page ──────────────────────────────────────────────────────── -->
+  <div class="page" id="page-stats" style="display:none">
+
+    <!-- DB not configured notice -->
+    <div class="card stats-no-db" id="stats-no-db" style="display:none">
+      <div class="stats-no-db-icon">🗄️</div>
+      <div>
+        <div style="font-weight:600;margin-bottom:4px">Database not configured</div>
+        <div style="color:var(--text-muted);font-size:13px">
+          Add <code>DB_HOST</code>, <code>DB_USER</code>, <code>DB_PASSWORD</code>, and <code>DB_NAME</code>
+          to your <code>.env</code> file and redeploy to enable listening history.
+        </div>
+      </div>
+    </div>
+
+    <div id="stats-content" style="display:none">
+
+      <!-- Summary bar -->
+      <div class="stats-summary" id="stats-summary">
+        <div class="summary-stat"><div class="summary-val" id="sum-plays">—</div><div class="summary-label">Total Plays</div></div>
+        <div class="summary-stat"><div class="summary-val" id="sum-time">—</div><div class="summary-label">Listening Time</div></div>
+        <div class="summary-stat"><div class="summary-val" id="sum-tracks">—</div><div class="summary-label">Unique Tracks</div></div>
+        <div class="summary-stat"><div class="summary-val" id="sum-artists">—</div><div class="summary-label">Unique Artists</div></div>
+        <div class="summary-stat summary-stat-wide"><div class="summary-val" id="sum-range" style="font-size:13px">—</div><div class="summary-label">Date Range</div></div>
+      </div>
+
+      <!-- Period selector -->
+      <div class="period-tabs">
+        <button class="period-btn active" data-period="week" onclick="setPeriod('week')">7 Days</button>
+        <button class="period-btn" data-period="month" onclick="setPeriod('month')">30 Days</button>
+        <button class="period-btn" data-period="year" onclick="setPeriod('year')">12 Months</button>
+        <button class="period-btn" data-period="alltime" onclick="setPeriod('alltime')">All Time</button>
+      </div>
+
+      <!-- Top lists -->
+      <div class="stats-grid">
+        <div class="card">
+          <div class="card-title">Top Tracks</div>
+          <div class="top-list" id="top-tracks-list"><div class="list-empty">No data yet</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Top Artists</div>
+          <div class="top-list" id="top-artists-list"><div class="list-empty">No data yet</div></div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="stats-grid">
+        <div class="card">
+          <div class="card-title">Listening Trend</div>
+          <div class="chart-wrap"><canvas id="chart-daily"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Listening Patterns</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:600">BY HOUR</div>
+              <div class="chart-wrap chart-wrap-sm"><canvas id="chart-hour"></canvas></div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:600">BY DAY</div>
+              <div class="chart-wrap chart-wrap-sm"><canvas id="chart-dow"></canvas></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Polling Interval</label>
-        <div class="range-row">
-          <input type="range" id="polling-interval" min="1000" max="30000" step="500" value="4000"
-            oninput="document.getElementById('polling-val').textContent=(this.value/1000).toFixed(1)+'s'" />
-          <span class="range-val" id="polling-val">4.0s</span>
+      <!-- Recent Plays + Import -->
+      <div class="stats-grid stats-grid-wide">
+        <div class="card">
+          <div class="card-title">Recent Plays</div>
+          <div class="recent-list" id="recent-list"></div>
+          <button class="btn btn-secondary btn-sm" id="btn-load-more" onclick="loadMorePlays()" style="margin-top:12px">Load More</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Import Spotify History</div>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">
+            Import your full listening history from a Spotify data export.
+            Download it from <strong>Spotify → Settings → Privacy → Download your data</strong>.
+          </p>
+          <div class="form-group">
+            <label>StreamingHistory_music_*.json files</label>
+            <input type="file" id="import-files" accept=".json" multiple />
+          </div>
+          <div class="switch-row" style="margin-bottom:14px">
+            <span class="switch-label" style="font-size:12px">Look up missing album art via Spotify API (slow)</span>
+            <label class="switch">
+              <input type="checkbox" id="import-enrich" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary btn-sm" onclick="startImport()">Import</button>
+          </div>
+          <div class="import-progress" id="import-progress" style="display:none">
+            <div class="progress-bar-wrap">
+              <div class="progress-bar" id="import-bar"></div>
+            </div>
+            <div class="progress-label" id="import-label"></div>
+          </div>
+          <div class="feedback" id="import-feedback"></div>
         </div>
       </div>
 
-      <div class="switch-row">
-        <span class="switch-label">Dithering</span>
-        <label class="switch">
-          <input type="checkbox" id="dithering-toggle" checked onchange="toggleDitheringSection()" />
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <div class="form-group conditional" id="dither-algorithm-section">
-        <label>Dither Algorithm</label>
-        <select id="dither-algorithm">
-          <option value="floyd-steinberg">Floyd-Steinberg</option>
-          <option value="nearest-neighbor">Nearest Neighbor</option>
-        </select>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
-        <button class="btn btn-secondary btn-sm" onclick="testPush()">Test Push</button>
-      </div>
-      <div class="feedback" id="settings-feedback"></div>
     </div>
-
   </div>
 
   <!-- Credentials Modal -->
@@ -131,12 +232,10 @@
         <span class="modal-title">Credentials</span>
         <button class="modal-close" onclick="closeCredentialsModal()">&#10005;</button>
       </div>
-
       <div class="form-group">
         <label>Spotify Client ID</label>
         <input type="text" id="cred-client-id" placeholder="your_client_id" />
       </div>
-
       <div class="form-group">
         <label>Spotify Client Secret</label>
         <div class="secret-wrap">
@@ -144,19 +243,15 @@
           <button class="secret-toggle" onclick="toggleSecret('cred-client-secret', this)" title="Show/hide">👁</button>
         </div>
       </div>
-
       <div class="form-group">
         <label>Redirect URI</label>
         <input type="text" id="cred-redirect-uri" placeholder="http://localhost:3080/auth/callback" />
       </div>
-
       <div class="btn-row">
         <button class="btn btn-secondary btn-sm" onclick="saveCredentials()">Save Credentials</button>
       </div>
       <div class="feedback" id="cred-feedback"></div>
-
       <hr class="divider" />
-
       <div class="switch-row" style="margin-bottom:0">
         <div>
           <div style="font-size:13px;font-weight:600">Spotify Account</div>
@@ -164,7 +259,6 @@
         </div>
         <span class="badge badge-disconnected" id="auth-status-badge">Disconnected</span>
       </div>
-
       <div class="btn-row" style="margin-top:14px">
         <a class="btn btn-primary" href="/auth/login" id="btn-connect">Connect Spotify</a>
         <button class="btn btn-danger btn-sm" id="btn-disconnect" onclick="disconnectSpotify()" style="display:none">Disconnect</button>
@@ -174,6 +268,7 @@
 
   <script src="/js/settings.js"></script>
   <script src="/js/preview.js"></script>
+  <script src="/js/stats.js"></script>
   <script src="/js/app.js"></script>
 </body>
 </html>
