@@ -12,8 +12,8 @@ APPDATA_DIR="/mnt/user/appdata/waad"
 REPO_URL="https://github.com/09R3/WAAD"
 BRANCH="main"
 SUBDIR="wled-album-art"        # subfolder inside repo
-CONTAINER_NAME="WAAD"
-IMAGE_NAME="WAAD"
+CONTAINER_NAME="waad"
+IMAGE_NAME="waad"
 HOST_PORT=3080                 # port exposed on Unraid
 CONTAINER_PORT=3000            # port inside container
 # ─────────────────────────────────────────────────────────────────────────────
