@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WLED Album Art</title>
+  <title>W.A.A.D</title>
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
   <div class="header">
     <div class="header-logo">🎵</div>
-    <h1>WLED <span>Album Art</span></h1>
+    <h1>W.<span>A.A.D</span></h1>
+    <button class="gear-btn" onclick="openCredentialsModal()" title="Credentials">&#9881;</button>
   </div>
 
   <div class="grid">
@@ -36,9 +37,12 @@
     <!-- Matrix Preview -->
     <div class="card">
       <div class="card-title">Matrix Preview</div>
-      <div class="preview-toggle">
-        <button class="toggle-btn active" id="btn-smooth" onclick="setPreviewMode('smooth')">Smooth</button>
-        <button class="toggle-btn" id="btn-pixel" onclick="setPreviewMode('pixel')">Pixel</button>
+      <div class="preview-header">
+        <div class="preview-toggle">
+          <button class="toggle-btn active" id="btn-smooth" onclick="setPreviewMode('smooth')">Smooth</button>
+          <button class="toggle-btn" id="btn-pixel" onclick="setPreviewMode('pixel')">Pixel</button>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="refreshPreview()" id="btn-refresh-preview">&#8635; Refresh</button>
       </div>
       <canvas id="preview-canvas"></canvas>
     </div>
@@ -110,9 +114,15 @@
       <div class="feedback" id="settings-feedback"></div>
     </div>
 
-    <!-- Credentials -->
-    <div class="card">
-      <div class="card-title">Credentials</div>
+  </div>
+
+  <!-- Credentials Modal -->
+  <div class="modal-overlay" id="credentials-modal" onclick="closeCredentialsModalOutside(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Credentials</span>
+        <button class="modal-close" onclick="closeCredentialsModal()">&#10005;</button>
+      </div>
 
       <div class="form-group">
         <label>Spotify Client ID</label>
@@ -129,7 +139,7 @@
 
       <div class="form-group">
         <label>Redirect URI</label>
-        <input type="text" id="cred-redirect-uri" placeholder="http://localhost:3000/auth/callback" />
+        <input type="text" id="cred-redirect-uri" placeholder="http://localhost:3080/auth/callback" />
       </div>
 
       <div class="btn-row">
@@ -152,7 +162,6 @@
         <button class="btn btn-danger btn-sm" id="btn-disconnect" onclick="disconnectSpotify()" style="display:none">Disconnect</button>
       </div>
     </div>
-
   </div>
 
   <script src="/js/settings.js"></script>
