@@ -1,3 +1,17 @@
+function openCredentialsModal() {
+  document.getElementById('credentials-modal').classList.add('open');
+}
+
+function closeCredentialsModal() {
+  document.getElementById('credentials-modal').classList.remove('open');
+}
+
+function closeCredentialsModalOutside(event) {
+  if (event.target === document.getElementById('credentials-modal')) {
+    closeCredentialsModal();
+  }
+}
+
 function toggleDitheringSection() {
   const on = document.getElementById('dithering-toggle').checked;
   document.getElementById('dither-algorithm-section').classList.toggle('visible', on);

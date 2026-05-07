@@ -107,6 +107,28 @@ async function fetchPreview() {
   }
 }
 
+async function refreshPreview() {
+  const btn = document.getElementById('btn-refresh-preview');
+  const width = parseInt(document.getElementById('matrix-width').value, 10);
+  const height = parseInt(document.getElementById('matrix-height').value, 10);
+
+  btn.textContent = '↻ …';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/preview');
+    const pixels = await res.json();
+    if (pixels.length > 0) {
+      renderPreview(pixels, width, height);
+    }
+  } catch (err) {
+    console.error('Preview refresh failed:', err);
+  } finally {
+    btn.textContent = '↻ Refresh';
+    btn.disabled = false;
+  }
+}
+
 function connectSSE() {
   if (sseSource) sseSource.close();
 
