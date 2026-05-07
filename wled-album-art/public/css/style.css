@@ -127,41 +127,34 @@ h1 span {
 .badge-error { color: var(--red); background: rgba(224,82,96,.12); }
 
 /* Now Playing card */
-.now-playing {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
+.spotify-embed-wrap iframe {
+  border-radius: 10px;
+  display: block;
 }
 
-.album-art {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
-  object-fit: cover;
-  background: var(--surface2);
-  flex-shrink: 0;
+.now-playing-idle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  color: var(--text-muted);
+  font-size: 13px;
 }
 
 .album-art-placeholder {
-  width: 80px;
-  height: 80px;
+  width: 52px;
+  height: 52px;
   border-radius: 8px;
   background: var(--surface2);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 22px;
   flex-shrink: 0;
   color: var(--text-muted);
 }
 
-.track-info { flex: 1; min-width: 0; }
-.track-name { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.track-artist { color: var(--text-muted); font-size: 13px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.track-album { color: var(--text-muted); font-size: 12px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.track-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-
-.idle-state { color: var(--text-muted); font-size: 13px; padding: 12px 0; }
+.track-meta { display: flex; flex-wrap: wrap; gap: 6px; }
 
 /* Preview card */
 .preview-header {
