@@ -40,7 +40,6 @@ if [ ! -f "$ENV_FILE" ]; then
     cat > "$ENV_FILE" <<'EOF'
 SPOTIFY_CLIENT_ID=your_client_id_here
 SPOTIFY_CLIENT_SECRET=your_client_secret_here
-# Set this to your Unraid server's LAN IP
 SPOTIFY_REDIRECT_URI=http://YOUR_UNRAID_IP:3080/auth/callback
 SERVER_PORT=3000
 EOF
