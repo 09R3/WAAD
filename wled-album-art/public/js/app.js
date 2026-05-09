@@ -1,6 +1,19 @@
-// Main UI — wires SSE, now-playing card, and auth status
+// Main UI — wires SSE, now-playing card, auth status, and page navigation
 
 let sseSource = null;
+let statsLoaded = false;
+
+function showPage(page) {
+  document.getElementById('page-dashboard').style.display = page === 'dashboard' ? '' : 'none';
+  document.getElementById('page-stats').style.display = page === 'stats' ? '' : 'none';
+  document.getElementById('nav-dashboard').classList.toggle('active', page === 'dashboard');
+  document.getElementById('nav-stats').classList.toggle('active', page === 'stats');
+
+  if (page === 'stats' && !statsLoaded) {
+    statsLoaded = true;
+    initStats();
+  }
+}
 
 function updateNowPlaying(track) {
   const embedWrap = document.getElementById('spotify-embed-wrap');

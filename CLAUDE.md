@@ -41,6 +41,7 @@ Spotify Poller (interval)
     → image/dither.js    — Floyd-Steinberg or nearest-neighbor (pure functions)
     → brightness scale   — inline in index.js, multiplied per-pixel
     → wled/ddp.js        — UDP DDP packet to WLED
+    → db/plays.js        — INSERT play record (skipped if DB not configured)
     → routes/api.js      — SSE broadcast to all connected browsers
 ```
 
@@ -56,9 +57,9 @@ The WLED DDP header is 10 bytes: `[0x41, 0x00, 0x01, 0x01, offset(4 BE), length(
 
 ### Frontend
 
-Vanilla JS, no build step. Three script files loaded in order: `settings.js` (form helpers, load/save), `preview.js` (canvas renderer), `app.js` (SSE client, now-playing updates, init). The canvas renderer supports two modes — smooth (bilinear via offscreen canvas scale) and pixel (rounded rectangles per LED with gap).
+Vanilla JS, no build step. Four script files loaded in order: `settings.js` (form helpers, load/save, modal), `preview.js` (canvas renderer), `stats.js` (stats page logic + Chart.js), `app.js` (SSE client, now-playing updates, page nav, init). The canvas renderer supports two modes — smooth (bilinear via offscreen canvas scale) and pixel (rounded rectangles per LED with gap).
 
-SSE events from `/api/stream` drive all real-time UI updates; the browser does not poll.
+SSE events from `/api/stream` drive all real-time UI updates; the browser does not poll. A second SSE endpoint `/api/import/progress` streams progress during Spotify export imports.
 
 ### Key file locations
 
@@ -72,7 +73,52 @@ SSE events from `/api/stream` drive all real-time UI updates; the browser does n
 | REST + SSE endpoints | `server/routes/api.js` |
 | OAuth redirect handlers | `server/routes/auth.js` |
 | Dither algorithms (pure) | `server/image/dither.js` |
+| DB connection pool | `server/db/client.js` |
+| Play record insert/query | `server/db/plays.js` |
+| Aggregation queries | `server/db/stats.js` |
+| Schema migrations | `server/db/migrations/001_initial.sql` |
+| Spotify export importer | `server/import/spotify-export.js` |
+| Stats + import API routes | `server/routes/stats.js` |
 
 ### Persistent data
 
 `data/settings.json` is the only file written at runtime and is volume-mounted in Docker (`./data:/app/data`). The `.env` file is also rewritten in-place by the credentials API — `process.env` is updated immediately so no restart is required.
+
+## Database module (optional)
+
+The DB module is fully optional. If `DB_HOST` is not set in `.env`, all DB calls are silently skipped and the rest of the app works normally.
+
+When configured, a PostgreSQL container runs alongside the app container on a shared `wled-net` Docker network. The app connects to it as `DB_HOST=postgres`. Migrations in `server/db/migrations/001_initial.sql` run automatically on startup using `CREATE TABLE IF NOT EXISTS` — safe to re-run.
+
+### Schema
+
+Two tables:
+- **`plays`** — one row per track change event. `source` is `'live'` for polled plays, `'import'` for imported ones. Has a unique index on `(artist_name, track_name, played_at)` for idempotent imports.
+- **`import_batches`** — one row per Spotify export import run, tracks filename, record counts, and date range.
+
+### Stats page
+
+The Stats tab in the UI is lazy-loaded on first click. It shows:
+- Summary bar (total plays, listening time, unique tracks/artists, date range)
+- Period tabs: 7 days / 30 days / 12 months / all time
+- Top 10 tracks and artists (by play count)
+- Listening trend line chart (daily play counts via Chart.js CDN)
+- Patterns bar charts (plays by hour of day, plays by day of week)
+- Recent plays feed with pagination
+- Spotify export import (multipart file upload, optional Spotify API enrichment, SSE progress)
+
+### Spotify export import
+
+Spotify's GDPR data export produces `StreamingHistory_music_N.json` files containing `{endTime, artistName, trackName, msPlayed}` records. The importer deduplicates via `ON CONFLICT DO NOTHING` on the unique index. Optional enrichment batch-queries the Spotify search API (5 at a time, 100ms delay) to fill in missing track IDs, album names, and album art URLs.
+
+### `.env` additions for DB
+
+```
+DB_USER=wled
+DB_PASSWORD=yourpasswordhere
+DB_NAME=listening_history
+DB_HOST=postgres
+DB_PORT=5432
+```
+
+On Unraid, point the `pgdata` volume mount to `/mnt/user/appdata/wled-album-art/pgdata`.

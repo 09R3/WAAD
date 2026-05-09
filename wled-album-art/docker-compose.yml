@@ -9,4 +9,24 @@ services:
     env_file:
       - .env
     restart: unless-stopped
-    network_mode: bridge
+    depends_on:
+      - postgres
+    networks:
+      - wled-net
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: wled-album-art-db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - wled-net
+
+networks:
+  wled-net:
+    driver: bridge

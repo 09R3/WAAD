@@ -58,8 +58,12 @@ async function poll() {
     id: trackId,
     name: item.name,
     artist: item.artists.map((a) => a.name).join(', '),
+    artistId: item.artists[0]?.id || null,
     album: item.album.name,
+    albumId: item.album.id || null,
     albumArtUrl: item.album.images[0]?.url || null,
+    durationMs: item.duration_ms || null,
+    spotifyUri: item.uri || null,
     isPlaying: is_playing,
   };
 
