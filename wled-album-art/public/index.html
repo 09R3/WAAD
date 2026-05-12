@@ -134,92 +134,215 @@
 
     <div id="stats-content" style="display:none">
 
-      <!-- Summary bar -->
-      <div class="stats-summary" id="stats-summary">
-        <div class="summary-stat"><div class="summary-val" id="sum-plays">—</div><div class="summary-label">Total Plays</div></div>
-        <div class="summary-stat"><div class="summary-val" id="sum-time">—</div><div class="summary-label">Listening Time</div></div>
-        <div class="summary-stat"><div class="summary-val" id="sum-tracks">—</div><div class="summary-label">Unique Tracks</div></div>
-        <div class="summary-stat"><div class="summary-val" id="sum-artists">—</div><div class="summary-label">Unique Artists</div></div>
-        <div class="summary-stat summary-stat-wide"><div class="summary-val" id="sum-range" style="font-size:13px">—</div><div class="summary-label">Date Range</div></div>
+      <!-- Stats tab bar -->
+      <div class="stats-tab-bar">
+        <button class="stats-tab active" data-tab="general" onclick="showStatsTab('general')">General</button>
+        <button class="stats-tab" data-tab="behavior" onclick="showStatsTab('behavior')">Behavior</button>
+        <button class="stats-tab" data-tab="deepdive" onclick="showStatsTab('deepdive')">Deep Dive</button>
+        <button class="stats-tab" data-tab="timepatterns" onclick="showStatsTab('timepatterns')">Time Patterns</button>
+        <button class="stats-tab" data-tab="fun" onclick="showStatsTab('fun')">Fun</button>
       </div>
 
-      <!-- Period selector -->
-      <div class="period-tabs">
-        <button class="period-btn active" data-period="week" onclick="setPeriod('week')">7 Days</button>
-        <button class="period-btn" data-period="month" onclick="setPeriod('month')">30 Days</button>
-        <button class="period-btn" data-period="year" onclick="setPeriod('year')">12 Months</button>
-        <button class="period-btn" data-period="alltime" onclick="setPeriod('alltime')">All Time</button>
+      <!-- ── General ──────────────────────────────────────────────────────── -->
+      <div class="stats-tab-section active" id="stats-tab-general">
+
+        <!-- Summary bar -->
+        <div class="stats-summary" id="stats-summary">
+          <div class="summary-stat"><div class="summary-val" id="sum-plays">—</div><div class="summary-label">Total Plays</div></div>
+          <div class="summary-stat"><div class="summary-val" id="sum-time">—</div><div class="summary-label">Listening Time</div></div>
+          <div class="summary-stat"><div class="summary-val" id="sum-tracks">—</div><div class="summary-label">Unique Tracks</div></div>
+          <div class="summary-stat"><div class="summary-val" id="sum-artists">—</div><div class="summary-label">Unique Artists</div></div>
+          <div class="summary-stat summary-stat-wide"><div class="summary-val" id="sum-range" style="font-size:13px">—</div><div class="summary-label">Date Range</div></div>
+        </div>
+
+        <!-- Period selector -->
+        <div class="period-tabs">
+          <button class="period-btn active" data-period="week" onclick="setPeriod('week')">7 Days</button>
+          <button class="period-btn" data-period="month" onclick="setPeriod('month')">30 Days</button>
+          <button class="period-btn" data-period="year" onclick="setPeriod('year')">12 Months</button>
+          <button class="period-btn" data-period="alltime" onclick="setPeriod('alltime')">All Time</button>
+        </div>
+
+        <!-- Top lists -->
+        <div class="stats-grid">
+          <div class="card">
+            <div class="card-title">Top Tracks</div>
+            <div class="top-list" id="top-tracks-list"><div class="list-empty">No data yet</div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Top Artists</div>
+            <div class="top-list" id="top-artists-list"><div class="list-empty">No data yet</div></div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="stats-grid">
+          <div class="card">
+            <div class="card-title">Listening Trend</div>
+            <div class="chart-wrap"><canvas id="chart-daily"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Listening Patterns</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div>
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:600">BY HOUR</div>
+                <div class="chart-wrap chart-wrap-sm"><canvas id="chart-hour"></canvas></div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:600">BY DAY</div>
+                <div class="chart-wrap chart-wrap-sm"><canvas id="chart-dow"></canvas></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Plays + Import -->
+        <div class="stats-grid stats-grid-wide">
+          <div class="card">
+            <div class="card-title">Recent Plays</div>
+            <div class="recent-list" id="recent-list"></div>
+            <button class="btn btn-secondary btn-sm" id="btn-load-more" onclick="loadMorePlays()" style="margin-top:12px">Load More</button>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Import Spotify History</div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">
+              Import your full listening history from a Spotify data export.
+              Download it from <strong>Spotify → Settings → Privacy → Download your data</strong>.
+            </p>
+            <div class="form-group">
+              <label>StreamingHistory_music_*.json files</label>
+              <input type="file" id="import-files" accept=".json" multiple />
+            </div>
+            <div class="switch-row" style="margin-bottom:14px">
+              <span class="switch-label" style="font-size:12px">Look up missing album art via Spotify API (slow)</span>
+              <label class="switch">
+                <input type="checkbox" id="import-enrich" />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-primary btn-sm" onclick="startImport()">Import</button>
+            </div>
+            <div class="import-progress" id="import-progress" style="display:none">
+              <div class="progress-bar-wrap">
+                <div class="progress-bar" id="import-bar"></div>
+              </div>
+              <div class="progress-label" id="import-label"></div>
+            </div>
+            <div class="feedback" id="import-feedback"></div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Top lists -->
-      <div class="stats-grid">
-        <div class="card">
-          <div class="card-title">Top Tracks</div>
-          <div class="top-list" id="top-tracks-list"><div class="list-empty">No data yet</div></div>
+      <!-- ── Behavior ─────────────────────────────────────────────────────── -->
+      <div class="stats-tab-section" id="stats-tab-behavior">
+
+        <div class="stats-grid">
+          <div class="card">
+            <div class="card-title">Listening Sessions</div>
+            <div id="behavior-sessions"><div class="list-empty">Loading…</div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Streaks &amp; Active Hours</div>
+            <div id="behavior-streaks"><div class="list-empty">Loading…</div></div>
+          </div>
         </div>
+
         <div class="card">
-          <div class="card-title">Top Artists</div>
-          <div class="top-list" id="top-artists-list"><div class="list-empty">No data yet</div></div>
+          <div class="card-title">Top Listening Days</div>
+          <div class="chart-wrap"><canvas id="chart-top-days"></canvas></div>
         </div>
+
       </div>
 
-      <!-- Charts -->
-      <div class="stats-grid">
-        <div class="card">
-          <div class="card-title">Listening Trend</div>
-          <div class="chart-wrap"><canvas id="chart-daily"></canvas></div>
+      <!-- ── Deep Dive ─────────────────────────────────────────────────────── -->
+      <div class="stats-tab-section" id="stats-tab-deepdive">
+
+        <div class="stats-grid">
+          <div class="card">
+            <div class="card-title">First Play Ever</div>
+            <div id="deepdive-first"><div class="list-empty">Loading…</div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">One-Hit Wonders</div>
+            <div class="top-list" id="one-hit-wonders-list"><div class="list-empty">Loading…</div></div>
+          </div>
         </div>
-        <div class="card">
-          <div class="card-title">Listening Patterns</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+        <div class="card" style="margin-bottom:var(--gap)">
+          <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+            Year in Review
+            <select id="year-review-select" style="width:auto;font-size:12px;padding:4px 8px" onchange="loadYearInReview(this.value)"></select>
+          </div>
+          <div class="stats-grid" style="margin-bottom:0">
             <div>
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:600">BY HOUR</div>
-              <div class="chart-wrap chart-wrap-sm"><canvas id="chart-hour"></canvas></div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:600">TOP TRACKS</div>
+              <div class="top-list" id="year-tracks-list"><div class="list-empty">Select a year</div></div>
             </div>
             <div>
-              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:600">BY DAY</div>
-              <div class="chart-wrap chart-wrap-sm"><canvas id="chart-dow"></canvas></div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:600">TOP ARTISTS</div>
+              <div class="top-list" id="year-artists-list"><div class="list-empty">Select a year</div></div>
             </div>
           </div>
         </div>
+
+        <div class="card">
+          <div class="card-title">Back-to-Back Replays</div>
+          <div class="top-list" id="back-to-back-list"><div class="list-empty">Loading…</div></div>
+        </div>
+
       </div>
 
-      <!-- Recent Plays + Import -->
-      <div class="stats-grid stats-grid-wide">
-        <div class="card">
-          <div class="card-title">Recent Plays</div>
-          <div class="recent-list" id="recent-list"></div>
-          <button class="btn btn-secondary btn-sm" id="btn-load-more" onclick="loadMorePlays()" style="margin-top:12px">Load More</button>
+      <!-- ── Time Patterns ─────────────────────────────────────────────────── -->
+      <div class="stats-tab-section" id="stats-tab-timepatterns">
+
+        <div class="stats-grid">
+          <div class="card">
+            <div class="card-title">Listening Time Slots</div>
+            <div id="time-slots-list"><div class="list-empty">Loading…</div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Top Artist Per Year</div>
+            <div class="top-list" id="top-artist-year-list"><div class="list-empty">Loading…</div></div>
+          </div>
         </div>
 
         <div class="card">
-          <div class="card-title">Import Spotify History</div>
-          <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">
-            Import your full listening history from a Spotify data export.
-            Download it from <strong>Spotify → Settings → Privacy → Download your data</strong>.
-          </p>
-          <div class="form-group">
-            <label>StreamingHistory_music_*.json files</label>
-            <input type="file" id="import-files" accept=".json" multiple />
-          </div>
-          <div class="switch-row" style="margin-bottom:14px">
-            <span class="switch-label" style="font-size:12px">Look up missing album art via Spotify API (slow)</span>
-            <label class="switch">
-              <input type="checkbox" id="import-enrich" />
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div class="btn-row">
-            <button class="btn btn-primary btn-sm" onclick="startImport()">Import</button>
-          </div>
-          <div class="import-progress" id="import-progress" style="display:none">
-            <div class="progress-bar-wrap">
-              <div class="progress-bar" id="import-bar"></div>
-            </div>
-            <div class="progress-label" id="import-label"></div>
-          </div>
-          <div class="feedback" id="import-feedback"></div>
+          <div class="card-title">Seasonal Listening</div>
+          <div class="chart-wrap chart-wrap-lg"><canvas id="chart-seasonal"></canvas></div>
         </div>
+
+      </div>
+
+      <!-- ── Fun ──────────────────────────────────────────────────────────── -->
+      <div class="stats-tab-section" id="stats-tab-fun">
+
+        <div class="stats-grid">
+          <div class="card">
+            <div class="card-title">A Year Ago Today</div>
+            <div class="section-sub" id="year-ago-label" style="font-size:12px;color:var(--text-muted);margin-bottom:10px"></div>
+            <div class="recent-list" id="year-ago-list"><div class="list-empty">Loading…</div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Late Night Sessions</div>
+            <div class="section-sub" id="late-night-total" style="font-size:12px;color:var(--text-muted);margin-bottom:10px"></div>
+            <div class="top-list" id="late-night-list"><div class="list-empty">Loading…</div></div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="card">
+            <div class="card-title">Most Played in One Day</div>
+            <div class="top-list" id="single-day-list"><div class="list-empty">Loading…</div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Artist Loyalty (Year Span)</div>
+            <div class="top-list" id="artist-year-span-list"><div class="list-empty">Loading…</div></div>
+          </div>
+        </div>
+
       </div>
 
     </div>

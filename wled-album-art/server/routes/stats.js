@@ -86,6 +86,110 @@ router.get('/stats/by-day', dbRequired, async (req, res) => {
   }
 });
 
+// ── Behavior ──────────────────────────────────────────────────────────────────
+
+router.get('/stats/sessions', dbRequired, async (req, res) => {
+  try { res.json(await stats.getSessionStats()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/stats/streaks', dbRequired, async (req, res) => {
+  try { res.json(await stats.getStreaks()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/stats/top-days', dbRequired, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit || '10', 10), 30);
+    res.json(await stats.getTopDays(limit));
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/stats/most-active-hour', dbRequired, async (req, res) => {
+  try { res.json(await stats.getMostActiveHour()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ── Deep Dive ─────────────────────────────────────────────────────────────────
+
+router.get('/stats/first-play', dbRequired, async (req, res) => {
+  try { res.json(await stats.getFirstPlay()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/stats/one-hit-wonders', dbRequired, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit || '20', 10), 50);
+    res.json(await stats.getOneHitWonders(limit));
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/stats/years', dbRequired, async (req, res) => {
+  try { res.json(await stats.getAvailableYears()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/stats/year-in-review', dbRequired, async (req, res) => {
+  try {
+    const year = parseInt(req.query.year || new Date().getFullYear(), 10);
+    res.json(await stats.getYearInReview(year));
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/stats/back-to-back', dbRequired, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit || '10', 10), 30);
+    res.json(await stats.getBackToBackReplays(limit));
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ── Time Patterns ─────────────────────────────────────────────────────────────
+
+router.get('/stats/seasonal', dbRequired, async (req, res) => {
+  try { res.json(await stats.getSeasonalTrends()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/stats/top-artist-per-year', dbRequired, async (req, res) => {
+  try { res.json(await stats.getTopArtistPerYear()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/stats/time-slots', dbRequired, async (req, res) => {
+  try { res.json(await stats.getListeningTimeSlots()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ── Fun ───────────────────────────────────────────────────────────────────────
+
+router.get('/stats/year-ago', dbRequired, async (req, res) => {
+  try { res.json(await stats.getAYearAgoToday()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/stats/late-night', dbRequired, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit || '10', 10), 20);
+    res.json(await stats.getLateNightReport(limit));
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/stats/single-day-record', dbRequired, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit || '10', 10), 20);
+    res.json(await stats.getMostPlayedInOneDay(limit));
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/stats/artist-year-span', dbRequired, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit || '10', 10), 20);
+    res.json(await stats.getArtistYearSpan(limit));
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 router.get('/stats/recent', dbRequired, async (req, res) => {
   try {
     const limit = Math.min(parseInt(req.query.limit || '50', 10), 200);
