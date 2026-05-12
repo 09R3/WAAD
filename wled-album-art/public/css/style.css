@@ -630,9 +630,162 @@ input[type="range"] {
 
 .list-empty { color: var(--text-muted); font-size: 13px; padding: 8px 0; }
 
+/* Stats tab bar */
+.stats-tab-bar {
+  display: flex;
+  gap: 4px;
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 4px;
+  width: fit-content;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.stats-tab {
+  padding: 5px 14px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.stats-tab.active {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* Stats tab sections */
+.stats-tab-section { display: none; }
+.stats-tab-section.active { display: block; }
+
+/* Stat tiles */
+.stat-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.stat-tile {
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 12px 14px;
+  flex: 1;
+  min-width: 110px;
+}
+
+.stat-tile-val {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.stat-tile-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-top: 3px;
+}
+
+.stat-tile-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* First play card */
+.first-play-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.first-play-art {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.first-play-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+
+.first-play-track {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.first-play-artist {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.first-play-date {
+  font-size: 12px;
+  color: var(--green);
+  margin-top: 4px;
+}
+
+/* Time slot bars */
+.slot-item { margin-bottom: 12px; }
+.slot-item:last-child { margin-bottom: 0; }
+
+.slot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.slot-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.slot-bar-wrap {
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.slot-bar {
+  height: 100%;
+  background: var(--green);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+/* top-count sub-label */
+.top-count-label {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
 /* Charts */
-.chart-wrap { position: relative; height: 200px; }
+.chart-wrap { position: relative; height: 200px; overflow: hidden; }
 .chart-wrap-sm { height: 130px; }
+.chart-wrap-lg { height: 260px; }
 
 /* Recent plays */
 .recent-list { display: flex; flex-direction: column; gap: 6px; max-height: 500px; overflow-y: auto; }
@@ -723,4 +876,6 @@ input[type="file"] {
   .stats-grid { grid-template-columns: 1fr; }
   .stats-grid-wide { grid-template-columns: 1fr; }
   .main-nav { display: none; }
+  .stats-tab-bar { width: 100%; }
+  .stats-tab { flex: 1; text-align: center; padding: 5px 8px; }
 }
