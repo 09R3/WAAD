@@ -467,6 +467,23 @@ async function getListeningTimeSlots() {
   return rows;
 }
 
+async function getTopAlbums(limit = 10) {
+  const pool = getPool();
+  if (!pool) return [];
+  const { rows } = await pool.query(
+    `SELECT album_name, album_id, artist_name,
+            MAX(album_art_url) AS album_art_url,
+            COUNT(*) AS play_count
+     FROM plays
+     WHERE album_name IS NOT NULL AND album_art_url IS NOT NULL
+     GROUP BY album_name, album_id, artist_name
+     ORDER BY play_count DESC
+     LIMIT $1`,
+    [limit]
+  );
+  return rows;
+}
+
 module.exports = {
   getSummary,
   getTopTracks,
@@ -496,4 +513,5 @@ module.exports = {
   getMostPlayedInOneDay,
   getArtistYearSpan,
   getListeningTimeSlots,
+  getTopAlbums,
 };
