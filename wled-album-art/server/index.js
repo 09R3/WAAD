@@ -11,6 +11,7 @@ const authRouter = require('./routes/auth');
 const statsRouter = require('./routes/stats');
 const { runMigrations, isConfigured } = require('./db/client');
 const { insertPlay } = require('./db/plays');
+const slideshow = require('./wled/slideshow');
 
 const app = express();
 app.use(express.json());
@@ -20,12 +21,16 @@ app.use('/auth', authRouter);
 app.use('/api', apiRouter);
 app.use('/api', statsRouter);
 
+slideshow.init(setLastPixels);
+
 // Track change pipeline: fetch art → process → push to WLED → record play → broadcast SSE
 setTrackChangeHandler(async (track) => {
   if (!track || !track.albumArtUrl) {
     broadcast('trackChange', { track: null, pixels: [] });
+    slideshow.start();
     return;
   }
+  slideshow.stop();
 
   const settings = loadSettings();
   const { width, height } = settings.matrix;

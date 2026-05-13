@@ -42,6 +42,10 @@ async function poll() {
       currentTrack = null;
       currentTrackId = null;
       events.emit('trackChange', null);
+      if (onTrackChange) {
+        try { await onTrackChange(null); }
+        catch (err) { events.emit('error', { message: 'Track change handler error', detail: err.message }); }
+      }
     }
     return;
   }
