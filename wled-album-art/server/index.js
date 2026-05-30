@@ -6,7 +6,7 @@ const { start: startPoller, setTrackChangeHandler, events: pollerEvents } = requ
 const { fetchAlbumArt } = require('./image/fetcher');
 const { processImage } = require('./image/processor');
 const { pushPixels } = require('./wled/ddp');
-const { router: apiRouter, broadcast, setLastPixels } = require('./routes/api');
+const { router: apiRouter, broadcast, setLastPixels, getLastPixels } = require('./routes/api');
 const authRouter = require('./routes/auth');
 const statsRouter = require('./routes/stats');
 const { runMigrations, isConfigured } = require('./db/client');
@@ -94,6 +94,16 @@ setTrackChangeHandler(async (track) => {
 pollerEvents.on('error', (e) => {
   console.error('[poller]', e.message, e.detail || '');
 });
+
+// Keepalive: re-push the last frame every 2s so WLED never reverts to its effect
+setInterval(async () => {
+  const pixels = getLastPixels();
+  if (!pixels) return;
+  const { wled } = loadSettings();
+  if (!wled.ip) return;
+  try { await pushPixels(pixels, wled.ip, wled.port); }
+  catch (_) {}
+}, 2000);
 
 const PORT = process.env.SERVER_PORT || 3000;
 app.listen(PORT, async () => {
