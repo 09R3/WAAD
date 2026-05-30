@@ -112,4 +112,8 @@ router.post('/credentials', (req, res) => {
   }
 });
 
-module.exports = { router, broadcast, setLastPixels };
+function getLastPixels() {
+  return lastPixels;
+}
+
+module.exports = { router, broadcast, setLastPixels, getLastPixels };
